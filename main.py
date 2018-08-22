@@ -2,15 +2,15 @@ import smtplib
 import time
 import imaplib
 import email
-
-
-ORG_EMAIL   = "@gmail.com" 
-FROM_EMAIL = raw_input("Enter your email: ")
-FROM_PWD    = raw_input("Enter your password: ")
-SMTP_SERVER = "imap.gmail.com"
-SMTP_PORT   = 993
+from Tkinter import *
 
 def read_email_from_gmail():
+
+    ORG_EMAIL   = "@gmail.com" 
+    FROM_EMAIL = email.get()
+    FROM_PWD    = password.get()
+    SMTP_SERVER = "imap.gmail.com"
+    SMTP_PORT   = 993
     try:
         mail = imaplib.IMAP4_SSL(SMTP_SERVER)
         mail.login(FROM_EMAIL,FROM_PWD)
@@ -58,4 +58,30 @@ def read_email_from_gmail():
     except:
         print "Error"
 
-read_email_from_gmail()
+
+root = Tk()
+root.geometry('400x200')
+root.title('Email selector')
+root.configure()
+
+#Email icon
+icon = PhotoImage(file = 'Email_icon.gif')
+email_icon = Label(root, image= icon, justify = LEFT)
+email_icon.grid(column = 1)
+
+#Entry for email address and password
+Label(root, text = "Email-address", justify = LEFT).grid(row=2, padx = 10, pady = 10)
+Label(root, text = "Password", justify = LEFT).grid(row=3, padx = 10)
+email = Entry(root, justify = LEFT, width = 30)
+password = Entry(root, justify = LEFT, show = '*', width = 30)
+email.grid(row=2, column=1, padx = 10, pady = 10)
+password.grid(row=3, column=1, padx = 10)
+
+#Next button
+next = Button(root, text = 'Next', command = read_email_from_gmail)
+next.grid(row = 4, column = 1, pady = 20)
+
+
+
+root.mainloop()
+
