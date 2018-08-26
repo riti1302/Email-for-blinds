@@ -4,18 +4,45 @@ import imaplib
 import email
 from Tkinter import *
 
-def read_email_from_gmail():
 
-    ORG_EMAIL   = "@gmail.com" 
-    FROM_EMAIL = email.get()
-    FROM_PWD    = password.get()
-    SMTP_SERVER = "imap.gmail.com"
-    SMTP_PORT   = 993
+SMTP_SERVER = "imap.gmail.com"
+SMTP_PORT   = 993
+mail = imaplib.IMAP4_SSL(SMTP_SERVER)
+
+root = Tk()
+root.geometry('430x220')
+root.title('Sign In')
+root.configure(background = 'antique white')
+
+def checking(event):
+    if email == root.focus_get():
+        error.configure(text = 'Checking email...', fg = 'blue')
+    elif password == root.focus_get():
+        error.configure(text = 'Checking password...', fg = 'blue')
+
+def login_success():
+    mail.login(email.get(),password.get())
+    print "login success"
+
+def login_error():
+    error.configure(text = 'Email or password is incorrect', fg = 'red')
+    time.sleep(5)
+    print "login error"
+    time.sleep(5)
+    email.delete(0, END)
+    password.delete(0, END)
+
+def login(*event):
     try:
-        mail = imaplib.IMAP4_SSL(SMTP_SERVER)
-        mail.login(FROM_EMAIL,FROM_PWD)
-       #lists = mail.list()
-       #print lists
+        login_success()
+        root.destroy()
+        read_email_from_gmail()
+
+    except:
+        login_error()
+
+def read_email_from_gmail():
+    try:
         mail.select('inbox')
 
         result, data = mail.search(None, '(SINCE "16-Aug-2018" BEFORE "17-Aug-2018")')
@@ -35,7 +62,9 @@ def read_email_from_gmail():
             print "Success 3"
             for response_part in data:
                 if isinstance(response_part, tuple):
+                    print "success 6"
                     msg = email.message_from_string(response_part[1])
+                    print "success 7"
                     email_subject = msg['subject']
                     email_from = msg['from']
                     email_date = msg['date']
@@ -54,15 +83,10 @@ def read_email_from_gmail():
                 else:
                     print "The email has non-readable file"
                    
+                   
                     
     except:
         print "Error"
-
-
-root = Tk()
-root.geometry('400x200')
-root.title('Email selector')
-root.configure()
 
 #Email icon
 icon = PhotoImage(file = 'Email_icon.gif')
@@ -70,18 +94,27 @@ email_icon = Label(root, image= icon, justify = LEFT)
 email_icon.grid(column = 1)
 
 #Entry for email address and password
-Label(root, text = "Email-address", justify = LEFT).grid(row=2, padx = 10, pady = 10)
-Label(root, text = "Password", justify = LEFT).grid(row=3, padx = 10)
-email = Entry(root, justify = LEFT, width = 30)
-password = Entry(root, justify = LEFT, show = '*', width = 30)
+Label(root, text = "Email-address", justify = LEFT, bg = 'antique white').grid(row=2, padx = 10, pady = 10)
+Label(root, text = "Password", justify = LEFT, bg = 'antique white').grid(row=3, padx = 10)
+
+email = Entry(root, justify = LEFT, width = 35)
+password = Entry(root, justify = LEFT, show = '*', width = 35)
 email.grid(row=2, column=1, padx = 10, pady = 10)
 password.grid(row=3, column=1, padx = 10)
+email.index(END)
+password.index(END)
+
+#For error part
+error = Label(root, text = 'Have a great day ahead', justify = LEFT, font = ('Helvetica',10), bg = 'antique white')
+error.grid(row = 4, column = 1, padx = 10)
+
+email.bind("<FocusIn>", checking)
+password.bind("<FocusIn>", checking)
 
 #Next button
-next = Button(root, text = 'Next', command = read_email_from_gmail)
-next.grid(row = 4, column = 1, pady = 20)
-
-
+next = Button(root, text = 'Login', command = login, bg = 'blue', fg = 'white', bd = 0)
+next.grid(row = 5, column = 1, pady = 20)
+next.bind("<Return>", login)
 
 root.mainloop()
 
